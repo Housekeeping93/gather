@@ -2,7 +2,9 @@
 
 ## Install and get started
 
-Want to use Gather? Read the **[Windows installation guide](docs/INSTALLATION.md)** for downloads, setup, service linking, updates and troubleshooting. Installers belong on the [Releases page](https://github.com/Housekeeping93/gather/releases); no installer has been attached there yet. Until one is published, request the current installer from the maintainer. Downloading the source ZIP does not install Gather.
+**[Download the Windows installer](https://github.com/Housekeeping93/gather/releases/download/v0.10.0-dev.9/Gather-Setup-0.10.0-dev.9.exe)** · **[Installation guide](docs/INSTALLATION.md)** · **[All releases](https://github.com/Housekeeping93/gather/releases)**
+
+The current download is a Windows 11 x64 development prerelease. The guide covers setup, service linking, updates and troubleshooting. Downloading the source ZIP does not install Gather.
 
 ## Latest changes
 

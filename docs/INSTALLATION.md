@@ -4,9 +4,9 @@ Gather brings several messaging services into one Windows app. You do not need G
 
 ## Get the installer
 
-Open [Gather Releases](https://github.com/Housekeeping93/gather/releases) and look under a release's **Assets** for `Gather-Setup-<version>.exe`.
+Download the **[Windows installer for 0.10.0-dev.9](https://github.com/Housekeeping93/gather/releases/download/v0.10.0-dev.9/Gather-Setup-0.10.0-dev.9.exe)** from the [development release](https://github.com/Housekeeping93/gather/releases/tag/v0.10.0-dev.9).
 
-**Download status:** No installer is currently attached to a GitHub release. Until one is published, ask the maintainer for the current installer. The GitHub **Code > Download ZIP** option and **Source code** release assets contain source code, not an installable app.
+For newer versions, open [Gather Releases](https://github.com/Housekeeping93/gather/releases) and look under a release's **Assets** for `Gather-Setup-<version>.exe`. Choose the newest development prerelease if you want the latest preview features. The GitHub **Code > Download ZIP** option and **Source code** release assets contain source code, not an installable app.
 
 ## What you need
 
@@ -74,7 +74,7 @@ To sign an account out and remove its local data, use its **Account settings > R
 
 | Problem | What to try |
 | --- | --- |
-| No installer on GitHub | There is no published binary yet. Request it from the maintainer; downloading the source ZIP will not install Gather. |
+| You downloaded a source ZIP | Use the `.exe` installer under release Assets instead; source ZIPs do not install Gather. |
 | Setup asks for WebView2 | Install or repair Microsoft's Evergreen WebView2 Runtime, then rerun setup. |
 | Gather still looks like the old version | Quit it through Settings before reinstalling. Launch **Gather** from Start rather than an older portable folder. |
 | A service does not sign in | Check your connection and provider status. For Slack, try its email-code flow. Report the provider and Gather version if the issue persists. |
