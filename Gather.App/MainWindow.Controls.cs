@@ -58,12 +58,12 @@ public sealed partial class MainWindow
         foreach (var a in _state.Accounts)
         {
             var p = Providers.Find(a.ProviderId)!;
-            var grid = new Grid { Width = 52, Height = 52 };
-            grid.Children.Add(ServiceLogo(p, 28));
+            var grid = new Grid { Width = Metrics.TileSize, Height = Metrics.TileSize };
+            grid.Children.Add(ServiceLogo(p, _state.ShellDensity == "Comfortable" ? 32 : 28));
             var badge = new TextBlock { FontSize = 11, Foreground = Brush("#FFFFFF"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             var pill = new Border { Child = badge, MinWidth = 21, Height = 21, Padding = new(4, 0, 4, 0), CornerRadius = new(11), Background = Brush("#B4233D"), BorderBrush = Brush("#FFFFFF"), BorderThickness = new(1), HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new(0, 1, 1, 0), Visibility = Visibility.Collapsed, IsHitTestVisible = false };
             grid.Children.Add(pill);
-            var button = new Button { Content = grid, Width = 52, Height = 52, Padding = new(0), CornerRadius = new(10), BorderThickness = new(0), HorizontalAlignment = HorizontalAlignment.Center };
+            var button = new Button { Content = grid, Width = Metrics.TileSize, Height = Metrics.TileSize, Padding = new(0), CornerRadius = new(10), BorderThickness = new(0), HorizontalAlignment = HorizontalAlignment.Center };
             _badges[a.Id] = (pill, badge, button);
             ToolTipService.SetToolTip(button, a.Name);
             button.Click += (_, _) => SelectAccount(a.Id);
@@ -148,7 +148,7 @@ public sealed partial class MainWindow
         var selector = new DropDownButton
         {
             Content = new TextBlock { Text = account?.Name ?? "Choose service", TextTrimming = TextTrimming.CharacterEllipsis, FontSize = 12, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold },
-            HorizontalAlignment = HorizontalAlignment.Left, MaxWidth = 240, MinWidth = 0, Height = 30,
+            HorizontalAlignment = HorizontalAlignment.Left, MaxWidth = 240, MinWidth = 0, Height = Metrics.ButtonHeight - 2,
             Padding = new(8, 0, 8, 0), CornerRadius = new(6), BorderThickness = new(0), Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent)
         };
         ToolTipService.SetToolTip(selector, account?.Name ?? "Choose service");
@@ -158,7 +158,7 @@ public sealed partial class MainWindow
             MenuItem(options, a.Name, () => SelectAccount(a.Id, right));
         selector.Flyout = options;
         header.Children.Add(selector);
-        var more = new Button { Content = "\uE712", FontFamily = new FontFamily("Segoe Fluent Icons"), Style = (Style)Root.Resources["ShellButtonStyle"], Width = 30, MinWidth = 30, Height = 30, Padding = new(0) };
+        var more = new Button { Content = "\uE712", FontFamily = new FontFamily("Segoe Fluent Icons"), Style = (Style)Root.Resources["ShellButtonStyle"], Width = Metrics.ButtonHeight - 2, MinWidth = Metrics.ButtonHeight - 2, Height = Metrics.ButtonHeight - 2, Padding = new(0) };
         ToolTipService.SetToolTip(more, "Service options");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(more, "Service options");
         var menu = new MenuFlyout();
@@ -367,6 +367,8 @@ public sealed partial class MainWindow
             }
         }
         var theme = new ComboBox { Header = "Appearance", ItemsSource = new[] { "Light", "Dark", "System" }, SelectedItem = _state.Theme, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var density = new ComboBox { Name = "ShellDensity", Header = "Shell spacing", ItemsSource = new[] { "Compact", "Comfortable" }, SelectedItem = _state.ShellDensity, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var focusView = new ToggleSwitch { Name = "FocusView", Header = "Focus view", IsOn = _state.FocusView };
         var tray = new ToggleSwitch { Header = "Keep running when the window closes", IsOn = _state.CloseToTray };
         var previews = new ToggleSwitch { Header = "Hide message previews in notifications", IsOn = _state.HidePreviews };
         var badgeMode = new ComboBox { Header = "Taskbar badge", ItemsSource = new[] { "Number", "Dot", "Off" }, SelectedItem = _state.TaskbarBadge, HorizontalAlignment = HorizontalAlignment.Stretch };
@@ -375,6 +377,10 @@ public sealed partial class MainWindow
         quietSettings.Click += (_, _) => { openQuietSettings = true; _activeDialog?.Hide(); };
         content.Children.Add(quietSettings);
         content.Children.Add(theme);
+        content.Children.Add(density);
+        content.Children.Add(Text("Comfortable enlarges Gather's controls and spacing without changing service zoom.", 12));
+        content.Children.Add(focusView);
+        content.Children.Add(Text("Hide the sidebar and pane headers. Use Ctrl+Shift+F or Exit focus view to restore them. This changes the layout, not notification settings.", 12));
         content.Children.Add(Text("Gather 0.10.0 · Signal development preview", 12, true));
         content.Children.Add(Text("Dark mode follows through to websites that support the system theme. A service’s own appearance setting may override it.", 12));
         content.Children.Add(startup);
@@ -426,12 +432,20 @@ public sealed partial class MainWindow
         if (result != ContentDialogResult.Primary)
             return;
         _state.Theme = (string)theme.SelectedItem;
+        _state.ShellDensity = (string)density.SelectedItem;
+        _state.FocusView = focusView.IsOn;
         _state.TaskbarBadge = (string)badgeMode.SelectedItem;
         _state.CloseToTray = tray.IsOn;
         _state.HidePreviews = previews.IsOn;
         ApplyTheme();
+        ApplyShellAppearance();
         UpdateStatus();
         Save();
+        if (_state.FocusView)
+        {
+            if (!_home) FocusWeb();
+            else ExitFocusViewButton.Focus(FocusState.Programmatic);
+        }
     }
 }
 

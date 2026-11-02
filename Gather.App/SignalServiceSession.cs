@@ -19,7 +19,8 @@ internal sealed class SignalServiceSession : IServiceSession
     private bool _quickSwitchDiagnosticInput;
     internal void EnableQuickSwitchDiagnosticInput()
     {
-        if (!_diagnostic || !System.Environment.GetCommandLineArgs().Contains("--smoke-quick-switch"))
+        var args = System.Environment.GetCommandLineArgs();
+        if (!_diagnostic || (!args.Contains("--smoke-quick-switch") && !args.Contains("--smoke-shell-layout")))
             throw new InvalidOperationException("Offline quick-switch fixture only.");
         _quickSwitchDiagnosticInput = true;
         _composer.IsEnabled = true;

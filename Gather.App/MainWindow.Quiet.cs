@@ -61,6 +61,10 @@ public sealed partial class MainWindow
         _quietLabel = label;
         string display = state.ScheduleActive ? (state.FocusActive ? $"{minutes}m focus · DND {TimeZoneInfo.ConvertTime(state.Occurrence!.End, QuietZone):HH:mm}" : $"DND until {TimeZoneInfo.ConvertTime(state.Occurrence!.End, QuietZone):HH:mm}") : label;
         QuietButton.Content = new TextBlock { Text = display, MaxWidth = 170, TextTrimming = TextTrimming.CharacterEllipsis, FontSize = 12 };
+        FocusQuietButton.Content = new TextBlock { Text = display, MaxWidth = 140, TextTrimming = TextTrimming.CharacterEllipsis, FontSize = 12 };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(FocusQuietButton, label);
+        ToolTipService.SetToolTip(FocusQuietButton, label + " - Focus timer, quiet hours and exceptions");
+        ToolTipService.SetToolTip(ToolbarMoreButton, label + " - More actions");
         ToolTipService.SetToolTip(QuietButton, label + " · Focus timer, quiet hours and exceptions");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(QuietButton, label);
         QuietButton.Background = state.ScheduleActive || state.FocusActive
@@ -90,7 +94,7 @@ public sealed partial class MainWindow
         draft.HideFocusBadges = hideBadges ?? draft.HideFocusBadges;
         return CommitQuiet(draft);
     }
-    private void OpenQuietMenu()
+    private void OpenQuietMenu(FrameworkElement? anchor = null)
     {
         RefreshQuiet();
         var menu = new MenuFlyout();
@@ -120,7 +124,7 @@ public sealed partial class MainWindow
                 CommitQuiet(draft);
             });
         MenuItem(menu, "Quiet hours & exceptions…", async () => await ShowQuietSettings());
-        menu.ShowAt(QuietButton);
+        menu.ShowAt(anchor ?? QuietButton);
     }
     private async Task ShowFocusDialog()
     {

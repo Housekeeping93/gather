@@ -77,7 +77,7 @@ public sealed partial class MainWindow : Window
                 _state.WindowHeight = AppWindow.Size.Height;
             }
         };
-        Root.SizeChanged += (_, _) => PageTitle.MaxWidth = Root.ActualWidth < 1000 ? 120 : 240;
+        Root.SizeChanged += (_, _) => UpdateShellOverflow();
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Gather.ico"));
         _native = new(WinRT.Interop.WindowNative.GetWindowHandle(this), ShowWindow, Quit, QuietSystemChanged, async () => { ShowWindow(); await ShowQuietSettings(); });
         _navigationKeys = new(WinRT.Interop.WindowNative.GetWindowHandle(this), direction =>
@@ -85,7 +85,7 @@ public sealed partial class MainWindow : Window
             if (_dialogs.CurrentCount == 0 || _quitting)
                 return false;
             return DispatcherQueue.TryEnqueue(() => NavigateServices(direction));
-        }, RequestQuickSwitch);
+        }, RequestQuickSwitch, RequestFocusView);
         Closed += (_, _) => _navigationKeys.Dispose();
         Root.ActualThemeChanged += (_, _) => RefreshTheme();
         Activated += (_, e) => { _windowActive = e.WindowActivationState != WindowActivationState.Deactivated; if (_windowActive) { RefreshQuiet(); AcknowledgeFocused(); } };
@@ -95,10 +95,12 @@ public sealed partial class MainWindow : Window
         BuildCards();
         BuildRail();
         InitializeQuiet();
+        InitializeShellAppearance();
         AppWindow.Closing += (_, e) => { if (!_quitting && _state.CloseToTray && _native.TrayAvailable) { e.Cancel = true; Save(); _native.Hide(); } };
         Closed += (_, _) => { _quitting = true; Save(); foreach (var v in _views.Values.ToArray()) v.Close(); _native.Dispose(); };
         AddShortcut(VirtualKey.S, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, ToggleSplit);
         AddShortcut(VirtualKey.K, VirtualKeyModifiers.Control, () => RequestQuickSwitch());
+        AddShortcut(VirtualKey.F, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, ToggleFocusView);
         AddShortcut(VirtualKey.Tab, VirtualKeyModifiers.Control, () => NavigateServices(1));
         AddShortcut(VirtualKey.Tab, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, () => NavigateServices(-1));
         for (int i = 0; i < 9; i++)
@@ -113,6 +115,12 @@ public sealed partial class MainWindow : Window
         Root.Loaded += async (_, _) =>
         {
             StartupLog.Write("root-loaded");
+            ApplyShellAppearance();
+            if (_smoke && args.Contains("--smoke-shell-layout"))
+            {
+                await RunShellLayoutSmokeTest();
+                return;
+            }
             if (_smoke && args.Contains("--smoke-quick-switch"))
             {
                 await RunQuickSwitchSmokeTest();
@@ -201,6 +209,7 @@ public sealed partial class MainWindow : Window
             PaneArea.Visibility = Welcome.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             SplitButton.IsChecked = _state.Layout.Split && !_home;
             SwapButton.Visibility = _state.Layout.Split && !_home ? Visibility.Visible : Visibility.Collapsed;
+            UpdateShellOverflow();
             PageTitle.Text = _home ? "Your space" : _state.Layout.Split ? "Side by side" : LeftAccount?.Name ?? "Your space";
             ToolTipService.SetToolTip(PageTitle, PageTitle.Text);
             if (_home)
@@ -228,7 +237,7 @@ public sealed partial class MainWindow : Window
     {
         bool split = _state.Layout.Split && !_home;
         LeftColumn.Width = new(split ? _state.Layout.Ratio : 1, GridUnitType.Star);
-        DividerColumn.Width = new(split ? 12 : 0);
+        DividerColumn.Width = new(split ? Metrics.DividerWidth : 0);
         RightColumn.Width = split ? new(1 - _state.Layout.Ratio, GridUnitType.Star) : new(0);
         RightPane.Visibility = split ? Visibility.Visible : Visibility.Collapsed;
         PositionViews();
