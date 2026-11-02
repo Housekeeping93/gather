@@ -1,5 +1,11 @@
 # Gather 0.10.0-dev.9 - shell spacing and focus view
 
+## Install and get started
+
+Want to use Gather? Read the **[Windows installation guide](docs/INSTALLATION.md)** for downloads, setup, service linking, updates and troubleshooting. Installers belong on the [Releases page](https://github.com/Housekeeping93/gather/releases); no installer has been attached there yet. Until one is published, request the current installer from the maintainer. Downloading the source ZIP does not install Gather.
+
+## Latest changes
+
 Choose **Settings → Shell spacing → Compact or Comfortable**. Compact retains the existing shell dimensions; Comfortable enlarges buttons, account tiles, pane headers and spacing without changing provider zoom. **Ctrl+Shift+F** or the toolbar focus-view button hides the sidebar and pane headers. The visible **Exit focus view** button restores them. Both preferences survive restart. This layout focus view leaves timed focus and scheduled Do Not Disturb unchanged.
 
 At narrower widths, secondary toolbar actions move into **More actions**. Quick switch and the current notification/focus status remain available. Existing account sessions stay attached, split ratios and selected panes are retained, and provider zoom is unchanged. [Verification and desktop checks](docs/G19-verification.md) describe the tested 125% display scale and remaining hardware checks.
