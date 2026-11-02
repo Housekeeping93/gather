@@ -10,24 +10,26 @@
         <Setter Property="Padding" Value="8,0"/>
       </Style>
     </Grid.Resources>
-    <Grid.RowDefinitions><RowDefinition Height="32"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Grid.RowDefinitions><RowDefinition x:Name="ShellTitleRow" Height="32"/><RowDefinition Height="*"/></Grid.RowDefinitions>
     <Grid x:Name="TitleBar" Padding="22,0,150,0"><StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"><TextBlock Text="●" Foreground="#31AE91" FontSize="12"/><TextBlock Text="Gather" FontWeight="SemiBold" FontSize="12"/><TextBlock Text="0.10 DEV" Opacity="0.45" FontSize="9" CharacterSpacing="140" VerticalAlignment="Center" Margin="6,0,0,0"/></StackPanel></Grid>
-    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-      <Border BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,1,0" Padding="8,6,8,8">
+    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition x:Name="RailColumn" Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <Border x:Name="RailBorder" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,1,0" Padding="8,6,8,8">
         <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
           <Button x:Name="HomeButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE80F;" FontFamily="Segoe Fluent Icons" FontSize="18" Width="48" Height="38" HorizontalAlignment="Center" ToolTipService.ToolTip="Home" AutomationProperties.Name="Home" Click="Home_Click"/>
           <ScrollViewer Grid.Row="1" Margin="0,8,0,8" VerticalScrollBarVisibility="Hidden" ToolTipService.ToolTip="Drag services to reorder · Ctrl+Tab to switch"><StackPanel x:Name="ServiceRail" Spacing="6"/></ScrollViewer>
-          <StackPanel Grid.Row="2" Spacing="6"><Button Style="{StaticResource ShellButtonStyle}" Content="&#xE710;" FontFamily="Segoe Fluent Icons" FontSize="18" Width="48" Height="38" HorizontalAlignment="Center" ToolTipService.ToolTip="Add a service" AutomationProperties.Name="Add a service" Click="Add_Click"/><Button Style="{StaticResource ShellButtonStyle}" Content="&#xE713;" FontFamily="Segoe Fluent Icons" Width="48" Height="38" HorizontalAlignment="Center" ToolTipService.ToolTip="Settings" AutomationProperties.Name="Settings" Click="Settings_Click"/></StackPanel>
+          <StackPanel Grid.Row="2" Spacing="6"><Button x:Name="AddServiceButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE710;" FontFamily="Segoe Fluent Icons" FontSize="18" Width="48" Height="38" HorizontalAlignment="Center" ToolTipService.ToolTip="Add a service" AutomationProperties.Name="Add a service" Click="Add_Click"/><Button x:Name="SettingsButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE713;" FontFamily="Segoe Fluent Icons" Width="48" Height="38" HorizontalAlignment="Center" ToolTipService.ToolTip="Settings" AutomationProperties.Name="Settings" Click="Settings_Click"/></StackPanel>
         </Grid>
       </Border>
-      <Grid Grid.Column="1" Padding="8,0,8,8"><Grid.RowDefinitions><RowDefinition Height="44"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+      <Grid x:Name="ShellContent" Grid.Column="1" Padding="8,0,8,8"><Grid.RowDefinitions><RowDefinition x:Name="ToolbarRow" Height="44"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Grid ColumnSpacing="16"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-          <Grid VerticalAlignment="Center" ColumnSpacing="16" Margin="4,0,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Grid x:Name="ToolbarLabels" VerticalAlignment="Center" ColumnSpacing="16" Margin="4,0,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
             <TextBlock x:Name="PageTitle" Text="Your space" FontSize="15" FontWeight="SemiBold" MaxWidth="240" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
             <TextBlock x:Name="StatusText" Grid.Column="1" Text="Ready when you are" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
           </Grid>
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <StackPanel x:Name="ToolbarActions" Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
             <Button x:Name="QuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
+            <Button x:Name="FocusViewButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE740;" FontFamily="Segoe Fluent Icons" Click="FocusView_Click" ToolTipService.ToolTip="Focus view (Ctrl+Shift+F)" AutomationProperties.Name="Focus view (Ctrl+Shift+F)"/>
+            <Button x:Name="ToolbarMoreButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE712;" FontFamily="Segoe Fluent Icons" Visibility="Collapsed" ToolTipService.ToolTip="More actions" AutomationProperties.Name="More actions"/>
             <Button x:Name="PreviousButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72B;" FontFamily="Segoe Fluent Icons" Click="Previous_Click" ToolTipService.ToolTip="Previous service (Ctrl+Shift+Tab)" AutomationProperties.Name="Previous service"/>
             <Button x:Name="NextButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72A;" FontFamily="Segoe Fluent Icons" Click="Next_Click" ToolTipService.ToolTip="Next service (Ctrl+Tab)" AutomationProperties.Name="Next service"/>
             <Border Width="1" Height="16" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="6,0"/>
@@ -65,6 +67,11 @@
               </ToggleButton.Resources>
             </ToggleButton>
           </StackPanel>
+          <StackPanel x:Name="FocusToolbar" Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Visibility="Collapsed">
+            <Button x:Name="FocusQuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
+            <Button x:Name="FocusQuietButton" Style="{StaticResource ShellButtonStyle}" Content="Focus &amp; DND" AutomationProperties.Name="Focus and Do Not Disturb"/>
+            <Button x:Name="ExitFocusViewButton" Style="{StaticResource ShellButtonStyle}" Content="Exit focus view" Click="FocusView_Click" ToolTipService.ToolTip="Restore the sidebar and toolbar (Ctrl+Shift+F)" AutomationProperties.Name="Exit focus view (Ctrl+Shift+F)"/>
+          </StackPanel>
         </Grid>
         <InfoBar x:Name="Notice" Grid.Row="1" IsOpen="False" IsClosable="True" Severity="Informational"/>
         <Grid x:Name="ContentArea" Grid.Row="2">
@@ -74,9 +81,9 @@
             <Border CornerRadius="12" BorderThickness="1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Padding="20"><StackPanel Spacing="6"><TextBlock Text="Your accounts stay on this computer" FontWeight="SemiBold"/><TextBlock Text="Web services use their own sign-in. Signal links from your phone and opens here. Gather keeps each account’s data separate." TextWrapping="Wrap" Opacity="0.6" FontSize="12"/></StackPanel></Border>
           </StackPanel></ScrollViewer>
           <Grid x:Name="PaneArea" Visibility="Collapsed"><Grid.ColumnDefinitions><ColumnDefinition x:Name="LeftColumn" Width="*"/><ColumnDefinition x:Name="DividerColumn" Width="0"/><ColumnDefinition x:Name="RightColumn" Width="0"/></Grid.ColumnDefinitions>
-            <Border x:Name="LeftPane" BorderThickness="1" CornerRadius="8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"><Grid><Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions><Grid x:Name="LeftHeader" Padding="6,4"/><Grid x:Name="LeftSurface" Grid.Row="1"/></Grid></Border>
+            <Border x:Name="LeftPane" BorderThickness="1" CornerRadius="8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"><Grid><Grid.RowDefinitions><RowDefinition x:Name="LeftPaneHeaderRow" Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions><Grid x:Name="LeftHeader" Padding="6,4"/><Grid x:Name="LeftSurface" Grid.Row="1"/></Grid></Border>
             <Border x:Name="Divider" Grid.Column="1" Background="Transparent" ManipulationMode="TranslateX" ManipulationDelta="Divider_Drag" DoubleTapped="Divider_Reset"><Button x:Name="DividerHandle" Content="⋮" Padding="0" Width="12" Height="54" VerticalAlignment="Center" HorizontalAlignment="Center" KeyDown="Divider_KeyDown" ToolTipService.ToolTip="Drag to resize. Use arrow keys when focused."/></Border>
-            <Border x:Name="RightPane" Grid.Column="2" Visibility="Collapsed" BorderThickness="1" CornerRadius="8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"><Grid><Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions><Grid x:Name="RightHeader" Padding="6,4"/><Grid x:Name="RightSurface" Grid.Row="1"/></Grid></Border>
+            <Border x:Name="RightPane" Grid.Column="2" Visibility="Collapsed" BorderThickness="1" CornerRadius="8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"><Grid><Grid.RowDefinitions><RowDefinition x:Name="RightPaneHeaderRow" Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions><Grid x:Name="RightHeader" Padding="6,4"/><Grid x:Name="RightSurface" Grid.Row="1"/></Grid></Border>
             <Grid x:Name="ServiceLayer" Grid.ColumnSpan="3" Margin="0,40,0,0"/>
           </Grid>
         </Grid>

@@ -12,8 +12,8 @@ AppId={{83CC9359-8419-43CE-86E3-F7285EBC3C1B}
 AppId={{446932D6-C165-4CA9-94C3-73CD3988EB82}
 #endif
 AppName=Gather
-AppVersion=0.10.0-dev.8
-VersionInfoVersion=0.10.0.8
+AppVersion=0.10.0-dev.9
+VersionInfoVersion=0.10.0.9
 #ifdef QA
 DefaultDirName={src}\qa-installer-app
 #else
@@ -30,7 +30,7 @@ Compression=lzma2/fast
 SolidCompression=yes
 OutputDir={#ReleaseOutput}
 #ifndef QA
-OutputBaseFilename=Gather-Setup-0.10.0-dev.8
+OutputBaseFilename=Gather-Setup-0.10.0-dev.9
 #endif
 SetupIconFile={#PackageRoot}\Assets\Gather.ico
 UninstallDisplayIcon={app}\Gather.exe

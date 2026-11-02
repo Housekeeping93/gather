@@ -60,6 +60,8 @@ public sealed class Settings
     public Layout Layout { get; set; } = new();
     public QuietSettings Quiet { get; set; } = new();
     public string Theme { get; set; } = "Light";
+    public string ShellDensity { get; set; } = "Compact";
+    public bool FocusView { get; set; }
     public string TaskbarBadge { get; set; } = "Number";
     public bool CloseToTray { get; set; } = true;
     public bool HidePreviews { get; set; } = true;
@@ -170,6 +172,7 @@ public static class LayoutActions
                 a.Name = Providers.Find(a.ProviderId)!.Name;
         }
         state.Quiet ??= new();
+        ShellAppearance.Normalize(state);
         QuickSwitch.Normalize(state);
         QuietPolicy.Normalize(state.Quiet, state.Accounts);
         state.Layout ??= new();

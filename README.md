@@ -1,4 +1,12 @@
-# Gather 0.10.0-dev.8 - quick switch
+# Gather 0.10.0-dev.9 - shell spacing and focus view
+
+Choose **Settings → Shell spacing → Compact or Comfortable**. Compact retains the existing shell dimensions; Comfortable enlarges buttons, account tiles, pane headers and spacing without changing provider zoom. **Ctrl+Shift+F** or the toolbar focus-view button hides the sidebar and pane headers. The visible **Exit focus view** button restores them. Both preferences survive restart. This layout focus view leaves timed focus and scheduled Do Not Disturb unchanged.
+
+At narrower widths, secondary toolbar actions move into **More actions**. Quick switch and the current notification/focus status remain available. Existing account sessions stay attached, split ratios and selected panes are retained, and provider zoom is unchanged. [Verification and desktop checks](docs/G19-verification.md) describe the tested 125% display scale and remaining hardware checks.
+
+Build a feature installer from this workspace with `./scripts/Build-Installer.ps1`. It validates version metadata, publishes the app, checks runtime inventories and startup, compiles the production installer, and tests a separate QA installer with the same file payload in an isolated workspace folder. It does not install over the user's running copy. Read the resulting installer verification JSON in `outputs/docs` for the actual build paths and checksums.
+
+## Previous update: 0.10.0-dev.8 - quick switch
 
 Feature deliveries always include a tested Windows installer, its exact location, and the source pull request. Keep previous installer versions. Current local installers are in `../../outputs/installers`, published apps in `../../outputs/releases`, and verification evidence in `../../work/qa` and `../../work/logs`.
 
