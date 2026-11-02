@@ -17,7 +17,7 @@ public sealed partial class MainWindow
         MenuItem(menu, "Previous service", () => NavigateServices(-1));
         MenuItem(menu, "Next service", () => NavigateServices(1));
         MenuItem(menu, "Swap sides", () => { LayoutActions.Swap(_state.Layout); _ = RefreshLayout(); });
-        MenuItem(menu, "Toggle split view", ToggleSplit);
+        MenuItem(menu, "Toggle split view (Alt+F)", ToggleSplit);
         MenuItem(menu, "Focus timer and quiet hours", () => OpenQuietMenu(ToolbarMoreButton));
         MenuItem(menu, "Switch light/dark theme", () => Theme_Click(ThemeButton, new RoutedEventArgs()));
         MenuItem(menu, "Layout and settings", async () => await ShowSettings());
@@ -43,7 +43,7 @@ public sealed partial class MainWindow
         DividerHandle.Width = m.DividerWidth;
         DividerHandle.Height = _state.ShellDensity == "Comfortable" ? 64 : 54;
         foreach (var control in new Control[] { QuickSwitchButton, FocusViewButton, ToolbarMoreButton, PreviousButton,
-            NextButton, QuietButton, ThemeButton, SwapButton, SplitButton, FocusQuickSwitchButton, FocusQuietButton, ExitFocusViewButton })
+            NextButton, QuietButton, ThemeButton, SwapButton, SplitButton, FocusQuickSwitchButton, FocusQuietButton, ExitFocusViewButton, PrivacyButton, FocusPrivacyButton })
         {
             control.Height = m.ButtonHeight; control.MinWidth = m.ButtonHeight;
             control.Padding = new(_state.ShellDensity == "Comfortable" ? 10 : 8, 0, _state.ShellDensity == "Comfortable" ? 10 : 8, 0);
@@ -79,6 +79,7 @@ public sealed partial class MainWindow
 
     private bool RequestFocusView()
     {
+        if (_privacyCovered) return true;
         if (_quitting || _dialogs.CurrentCount == 0) return false;
         if (_focusToggleQueued) return true;
         _focusToggleQueued = true;
@@ -89,7 +90,7 @@ public sealed partial class MainWindow
 
     private void ToggleFocusView()
     {
-        if (_quitting || _dialogs.CurrentCount == 0) return;
+        if (_quitting || _dialogs.CurrentCount == 0 || _privacyCovered) return;
         _state.FocusView = !_state.FocusView;
         ApplyShellAppearance(); Save();
         if (!_home) FocusWeb();

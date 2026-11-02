@@ -9,19 +9,19 @@ internal sealed class ServiceNavigationKeys : IDisposable
 {
     private readonly HookProc _handler;
     private readonly nint _hook;
-    public ServiceNavigationKeys(nint window, Func<int, bool> navigate, Func<bool> quickSwitch, Func<bool> focusView)
+    public ServiceNavigationKeys(Func<nint, bool> ownsWindow, Func<int, bool> navigate, Func<bool> quickSwitch,
+        Func<bool> focusView, Func<bool> splitView, Func<bool> privacy, Func<string> privacyShortcut)
     {
         _handler = (code, removed, message) =>
         {
             if (code >= 0 && removed == 1
-                && (uint)Marshal.ReadInt32(message, IntPtr.Size) == 0x100
-                && (GetKeyState(0x11) & 0x8000) != 0
-                && (GetKeyState(0x12) & 0x8000) == 0
-                && GetAncestor(Marshal.ReadIntPtr(message), 2) == window)
+                && (uint)Marshal.ReadInt32(message, IntPtr.Size) is 0x100 or 0x104
+                && ownsWindow(GetAncestor(Marshal.ReadIntPtr(message), 2)))
             {
                 var key = Marshal.ReadIntPtr(message, IntPtr.Size == 8 ? 16 : 8);
                 bool shift = (GetKeyState(0x10) & 0x8000) != 0;
-                var shortcut = ShellShortcuts.Resolve((int)key, true, shift, false);
+                var shortcut = ShellShortcuts.Resolve((int)key, (GetKeyState(0x11) & 0x8000) != 0,
+                    shift, (GetKeyState(0x12) & 0x8000) != 0, privacyShortcut());
                 bool repeat = ((long)Marshal.ReadIntPtr(message, IntPtr.Size == 8 ? 24 : 12) & (1L << 30)) != 0;
                 bool handled = shortcut switch
                 {
@@ -29,6 +29,8 @@ internal sealed class ServiceNavigationKeys : IDisposable
                     ShellShortcut.Next => navigate(1),
                     ShellShortcut.QuickSwitch => quickSwitch(),
                     ShellShortcut.FocusView => repeat || focusView(),
+                    ShellShortcut.SplitView => repeat || splitView(),
+                    ShellShortcut.PrivacyCurtain => repeat || privacy(),
                     _ => false
                 };
                 if (handled)

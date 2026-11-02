@@ -106,6 +106,7 @@ internal sealed partial class ServiceView : IServiceSession
         core.NewWindowRequested += async (_, e) =>
         {
             e.Handled = true;
+            if (_host.IsPrivacyCovered) return;
             var decision = NavigationPolicy.Decide(Provider, e.Uri);
             if (decision == NavigationDecision.IdentityBrowser)
             {
@@ -129,13 +130,14 @@ internal sealed partial class ServiceView : IServiceSession
                 var window = new Window { Title = Account.Name + " — Gather", Content = web };
                 window.AppWindow.Resize(new Windows.Graphics.SizeInt32(700, 760));
                 window.Activate();
+                _popups.Add((window, web));
+                _host.RegisterPrivacyPopup(window);
+                window.Closed += (_, _) => { web.Close(); _popups.RemoveAll(x => x.Window == window); };
                 var options = (await _host.EnvironmentAsync()).CreateCoreWebView2ControllerOptions();
                 options.ProfileName = Account.ProfileName;
                 await web.EnsureCoreWebView2Async(await _host.EnvironmentAsync(), options);
                 Configure(web.CoreWebView2, true);
                 e.NewWindow = web.CoreWebView2;
-                _popups.Add((window, web));
-                window.Closed += (_, _) => { web.Close(); _popups.RemoveAll(x => x.Window == window); };
             }
             catch (Exception ex) { _host.Diagnostic("popup", ex); }
             finally { deferral.Complete(); }

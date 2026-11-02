@@ -7,7 +7,7 @@ internal sealed partial class ServiceView
     internal async Task InitializeQuietDiagnosticAsync()
     {
         var args = System.Environment.GetCommandLineArgs();
-        if (!args.Contains("--smoke-quiet-web") && !args.Contains("--smoke-quick-switch")) throw new InvalidOperationException("Offline diagnostic only.");
+        if (!args.Contains("--smoke-quiet-web") && !args.Contains("--smoke-quick-switch") && !args.Contains("--smoke-privacy")) throw new InvalidOperationException("Offline diagnostic only.");
         _quietDiagnostic = true;
         var environment = await _host.EnvironmentAsync();
         var options = environment.CreateCoreWebView2ControllerOptions(); options.ProfileName = Account.ProfileName;
@@ -23,6 +23,7 @@ internal sealed partial class ServiceView
         var web = new WebView2();
         var window = new Window { Title = "Offline popup check", Content = web };
         window.Activate();
+        _host.RegisterPrivacyPopup(window);
         var environment = await _host.EnvironmentAsync();
         var options = environment.CreateCoreWebView2ControllerOptions(); options.ProfileName = Account.ProfileName;
         await web.EnsureCoreWebView2Async(environment, options);

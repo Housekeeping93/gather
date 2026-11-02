@@ -80,12 +80,12 @@ public sealed partial class MainWindow : Window
         Root.SizeChanged += (_, _) => UpdateShellOverflow();
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Gather.ico"));
         _native = new(WinRT.Interop.WindowNative.GetWindowHandle(this), ShowWindow, Quit, QuietSystemChanged, async () => { ShowWindow(); await ShowQuietSettings(); });
-        _navigationKeys = new(WinRT.Interop.WindowNative.GetWindowHandle(this), direction =>
+        _navigationKeys = new(OwnsShortcutWindow, direction =>
         {
             if (_dialogs.CurrentCount == 0 || _quitting)
                 return false;
             return DispatcherQueue.TryEnqueue(() => NavigateServices(direction));
-        }, RequestQuickSwitch, RequestFocusView);
+        }, RequestQuickSwitch, RequestFocusView, RequestSplitView, RequestPrivacy, () => _state.PrivacyShortcut);
         Closed += (_, _) => _navigationKeys.Dispose();
         Root.ActualThemeChanged += (_, _) => RefreshTheme();
         Activated += (_, e) => { _windowActive = e.WindowActivationState != WindowActivationState.Deactivated; if (_windowActive) { RefreshQuiet(); AcknowledgeFocused(); } };
@@ -96,9 +96,11 @@ public sealed partial class MainWindow : Window
         BuildRail();
         InitializeQuiet();
         InitializeShellAppearance();
+        InitializePrivacy();
         AppWindow.Closing += (_, e) => { if (!_quitting && _state.CloseToTray && _native.TrayAvailable) { e.Cancel = true; Save(); _native.Hide(); } };
         Closed += (_, _) => { _quitting = true; Save(); foreach (var v in _views.Values.ToArray()) v.Close(); _native.Dispose(); };
         AddShortcut(VirtualKey.S, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, ToggleSplit);
+        AddShortcut(VirtualKey.F, VirtualKeyModifiers.Menu, ToggleSplit);
         AddShortcut(VirtualKey.K, VirtualKeyModifiers.Control, () => RequestQuickSwitch());
         AddShortcut(VirtualKey.F, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, ToggleFocusView);
         AddShortcut(VirtualKey.Tab, VirtualKeyModifiers.Control, () => NavigateServices(1));
@@ -116,6 +118,12 @@ public sealed partial class MainWindow : Window
         {
             StartupLog.Write("root-loaded");
             ApplyShellAppearance();
+            if (_privacyCovered) RestorePrivacyFocus();
+            if (_smoke && args.Contains("--smoke-privacy"))
+            {
+                await RunPrivacySmokeTest();
+                return;
+            }
             if (_smoke && args.Contains("--smoke-shell-layout"))
             {
                 await RunShellLayoutSmokeTest();
@@ -172,7 +180,7 @@ public sealed partial class MainWindow : Window
     public Task<CoreWebView2Environment> EnvironmentAsync() => _environment ??= CreateEnvironment();
     private async Task<CoreWebView2Environment> CreateEnvironment() => await CoreWebView2Environment.CreateWithOptionsAsync(null, Path.Combine(_store.DirectoryPath, "Browser"), new CoreWebView2EnvironmentOptions());
     internal string AccountDataDirectory => _store.DirectoryPath;
-    internal bool IsAccountActive(string id) => !_home && FocusedId == id && _windowActive;
+    internal bool IsAccountActive(string id) => !_privacyCovered && !_home && FocusedId == id && _windowActive;
     private bool _windowActive;
     private IServiceSession CreateSession(Account a, bool diagnostic = false) => Providers.Find(a.ProviderId)!.Kind == ProviderKind.Signal
         ? new SignalServiceSession(a, this, diagnostic) : new ServiceView(a, this);
@@ -249,7 +257,7 @@ public sealed partial class MainWindow : Window
         foreach (var (id, service) in _views)
         {
             bool right = _state.Layout.Split && id == _state.Layout.Right;
-            bool visible = !_home && (id == _state.Layout.Left || right);
+            bool visible = !_privacyCovered && !_home && (id == _state.Layout.Left || right);
             service.View.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
             if (!visible)
                 continue;
@@ -261,7 +269,7 @@ public sealed partial class MainWindow : Window
     }
     public void FocusAccount(string id)
     {
-        if (_quickSwitchOpen) return;
+        if (_quickSwitchOpen || _privacyCovered) return;
         if (_state.Layout.Split && id == _state.Layout.Right)
             _state.Layout.FocusRight = true;
         else if (id == _state.Layout.Left)
@@ -277,11 +285,13 @@ public sealed partial class MainWindow : Window
     }
     private void FocusWeb()
     {
+        if (_privacyCovered) return;
         if (FocusedId != null && _views.TryGetValue(FocusedId, out var v))
             v.FocusContent();
     }
     private async void SelectAccount(string id, bool? right = null)
     {
+        if (_privacyCovered) return;
         if (!_state.Accounts.Any(x => x.Id == id))
             return;
         LayoutActions.Select(_state.Layout, id, right);
@@ -309,6 +319,7 @@ public sealed partial class MainWindow : Window
     }
     private void ToggleSplit()
     {
+        if (_privacyCovered || _dialogs.CurrentCount == 0) return;
         if (_state.Layout.Split && !_home)
             LayoutActions.Collapse(_state.Layout);
         else if (!LayoutActions.EnableSplit(_state.Layout, _state.Accounts.Select(a => a.Id)))
@@ -331,7 +342,7 @@ public sealed partial class MainWindow : Window
     }
     internal void ShowServiceNotification(Account account, string notificationTitle, string notificationBody)
     {
-        if (QuietFor(account).SuppressNotifications || _suspending) return;
+        if (_privacyCovered || QuietFor(account).SuppressNotifications || _suspending) return;
         string title = _state.HidePreviews ? account.Name : notificationTitle;
         string body = _state.HidePreviews ? "New activity — open Gather to view" : notificationBody;
         // Windows may suppress tray alerts according to the user's notification
@@ -341,6 +352,7 @@ public sealed partial class MainWindow : Window
     }
     private bool TestNotification()
     {
+        if (_privacyCovered) return false;
         const string title = "Gather notification test";
         const string body = "Notifications can reach you here. Click to open Gather.";
         return _native.ShowAlert(title, body);
@@ -361,7 +373,7 @@ public sealed partial class MainWindow : Window
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(badge.Tile, name + " · " + status);
         }
         var total = BadgeValue.Combine(_views.Values.Where(v => !v.Account.Muted && !quiet.ForAccount(_state.Quiet, v.Account).HideBadges).Select(v => v.Unread.Badge));
-        _native.SetBadge(total.Label(_state.TaskbarBadge), total.Count > 0 ? $"Gather: {total.Label("Number")} unread" : "Gather: new activity");
+        _native.SetBadge(_privacyCovered ? "" : total.Label(_state.TaskbarBadge), _privacyCovered ? "Gather" : total.Count > 0 ? $"Gather: {total.Label("Number")} unread" : "Gather: new activity");
         var selected = !_home && FocusedId != null && _views.TryGetValue(FocusedId, out var focused) ? focused : null;
         StatusText.Text = selected == null ? $"{_state.Accounts.Count} service accounts · Stored on this computer" : $"{selected.Account.Name} · {selected.Status}";
         ToolTipService.SetToolTip(StatusText, StatusText.Text);
@@ -369,12 +381,14 @@ public sealed partial class MainWindow : Window
     }
     private void AcknowledgeFocused()
     {
+        if (_privacyCovered) return;
         if (!_home && FocusedId != null && _views.TryGetValue(FocusedId, out var view))
             view.Acknowledge();
         UpdateStatus();
     }
     internal async void NavigateServices(int direction)
     {
+        if (_privacyCovered) return;
         if (!LayoutActions.Navigate(_state.Layout, _state.Accounts.Select(a => a.Id).ToArray(), direction))
             return;
         _home = false;
@@ -447,7 +461,7 @@ public sealed partial class MainWindow : Window
     private void AddShortcut(VirtualKey key, VirtualKeyModifiers modifiers, Action action)
     {
         var shortcut = new KeyboardAccelerator { Key = key, Modifiers = modifiers };
-        shortcut.Invoked += (_, e) => { if (_dialogs.CurrentCount > 0 && !_quitting) action(); e.Handled = true; };
+        shortcut.Invoked += (_, e) => { if (_dialogs.CurrentCount > 0 && !_quitting && !_privacyCovered) action(); e.Handled = true; };
         Root.KeyboardAccelerators.Add(shortcut);
     }
     internal void ShowWindow()

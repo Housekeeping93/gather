@@ -62,6 +62,8 @@ public sealed class Settings
     public string Theme { get; set; } = "Light";
     public string ShellDensity { get; set; } = "Compact";
     public bool FocusView { get; set; }
+    public string PrivacyShortcut { get; set; } = "Ctrl+Shift+P";
+    public bool PrivacyCovered { get; set; }
     public string TaskbarBadge { get; set; } = "Number";
     public bool CloseToTray { get; set; } = true;
     public bool HidePreviews { get; set; } = true;
@@ -173,6 +175,7 @@ public static class LayoutActions
         }
         state.Quiet ??= new();
         ShellAppearance.Normalize(state);
+        PrivacyCurtain.Normalize(state);
         QuickSwitch.Normalize(state);
         QuietPolicy.Normalize(state.Quiet, state.Accounts);
         state.Layout ??= new();

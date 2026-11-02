@@ -11,8 +11,8 @@
       </Style>
     </Grid.Resources>
     <Grid.RowDefinitions><RowDefinition x:Name="ShellTitleRow" Height="32"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-    <Grid x:Name="TitleBar" Padding="22,0,150,0"><StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"><TextBlock Text="●" Foreground="#31AE91" FontSize="12"/><TextBlock Text="Gather" FontWeight="SemiBold" FontSize="12"/><TextBlock Text="0.10 DEV" Opacity="0.45" FontSize="9" CharacterSpacing="140" VerticalAlignment="Center" Margin="6,0,0,0"/></StackPanel></Grid>
-    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition x:Name="RailColumn" Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid x:Name="TitleBar" Padding="22,0,150,0"><StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"><TextBlock Text="●" Foreground="#31AE91" FontSize="12"/><TextBlock Text="Gather" FontWeight="SemiBold" FontSize="12"/><TextBlock Text="0.10.0 MVP" Opacity="0.45" FontSize="9" CharacterSpacing="140" VerticalAlignment="Center" Margin="6,0,0,0"/></StackPanel></Grid>
+    <Grid x:Name="PrivateShell" Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition x:Name="RailColumn" Width="72"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
       <Border x:Name="RailBorder" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,1,0" Padding="8,6,8,8">
         <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
           <Button x:Name="HomeButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE80F;" FontFamily="Segoe Fluent Icons" FontSize="18" Width="48" Height="38" HorizontalAlignment="Center" ToolTipService.ToolTip="Home" AutomationProperties.Name="Home" Click="Home_Click"/>
@@ -27,7 +27,7 @@
             <TextBlock x:Name="StatusText" Grid.Column="1" Text="Ready when you are" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
           </Grid>
           <StackPanel x:Name="ToolbarActions" Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-            <Button x:Name="QuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
+            <Button x:Name="PrivacyButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72E;" FontFamily="Segoe Fluent Icons" Click="Privacy_Click" AutomationProperties.Name="Hide conversations"/><Button x:Name="QuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
             <Button x:Name="FocusViewButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE740;" FontFamily="Segoe Fluent Icons" Click="FocusView_Click" ToolTipService.ToolTip="Focus view (Ctrl+Shift+F)" AutomationProperties.Name="Focus view (Ctrl+Shift+F)"/>
             <Button x:Name="ToolbarMoreButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE712;" FontFamily="Segoe Fluent Icons" Visibility="Collapsed" ToolTipService.ToolTip="More actions" AutomationProperties.Name="More actions"/>
             <Button x:Name="PreviousButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72B;" FontFamily="Segoe Fluent Icons" Click="Previous_Click" ToolTipService.ToolTip="Previous service (Ctrl+Shift+Tab)" AutomationProperties.Name="Previous service"/>
@@ -36,7 +36,7 @@
             <Button x:Name="QuietButton" Style="{StaticResource ShellButtonStyle}" Content="Focus &amp; DND" ToolTipService.ToolTip="Focus timer, quiet hours and exceptions" AutomationProperties.Name="Focus and Do Not Disturb"/>
             <Button x:Name="ThemeButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE708;" FontFamily="Segoe Fluent Icons" FontSize="16" Click="Theme_Click" ToolTipService.ToolTip="Switch to dark mode"/>
             <Button x:Name="SwapButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE8AB;" FontFamily="Segoe Fluent Icons" Click="Swap_Click" Visibility="Collapsed" ToolTipService.ToolTip="Swap sides" AutomationProperties.Name="Swap sides"/>
-            <ToggleButton x:Name="SplitButton" Content="◫  Split view" Height="32" Padding="10,0" CornerRadius="8" BorderThickness="0" Click="Split_Click" ToolTipService.ToolTip="Toggle split view (Ctrl+Shift+S)" AutomationProperties.Name="Split view">
+            <ToggleButton x:Name="SplitButton" Content="◫  Split view" Height="32" Padding="10,0" CornerRadius="8" BorderThickness="0" Click="Split_Click" ToolTipService.ToolTip="Toggle split view (Alt+F or Ctrl+Shift+S)" AutomationProperties.Name="Split view">
               <ToggleButton.Resources>
                 <ResourceDictionary><ResourceDictionary.ThemeDictionaries>
                   <ResourceDictionary x:Key="Light">
@@ -68,7 +68,7 @@
             </ToggleButton>
           </StackPanel>
           <StackPanel x:Name="FocusToolbar" Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Visibility="Collapsed">
-            <Button x:Name="FocusQuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
+            <Button x:Name="FocusPrivacyButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72E;" FontFamily="Segoe Fluent Icons" Click="Privacy_Click" AutomationProperties.Name="Hide conversations"/><Button x:Name="FocusQuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
             <Button x:Name="FocusQuietButton" Style="{StaticResource ShellButtonStyle}" Content="Focus &amp; DND" AutomationProperties.Name="Focus and Do Not Disturb"/>
             <Button x:Name="ExitFocusViewButton" Style="{StaticResource ShellButtonStyle}" Content="Exit focus view" Click="FocusView_Click" ToolTipService.ToolTip="Restore the sidebar and toolbar (Ctrl+Shift+F)" AutomationProperties.Name="Exit focus view (Ctrl+Shift+F)"/>
           </StackPanel>
@@ -88,6 +88,15 @@
           </Grid>
         </Grid>
       </Grid>
+    </Grid>
+    <Grid x:Name="PrivacyCover" Grid.Row="1" Background="{ThemeResource GatherBackground}" Visibility="Collapsed">
+      <StackPanel MaxWidth="460" Margin="32" Spacing="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="&#xE72E;" FontFamily="Segoe Fluent Icons" FontSize="40" HorizontalAlignment="Center"/>
+        <TextBlock Text="Conversations hidden" FontSize="28" FontWeight="SemiBold" TextAlignment="Center" AutomationProperties.LiveSetting="Polite"/>
+        <TextBlock Text="Your sessions stay connected. This is screen privacy, not encryption or an authentication lock." TextWrapping="Wrap" TextAlignment="Center"/>
+        <Button x:Name="RestorePrivacyButton" Content="Show conversations" Click="Privacy_Click" HorizontalAlignment="Center" Padding="24,12" AutomationProperties.Name="Show conversations"/>
+        <TextBlock x:Name="PrivacyShortcutHint" TextAlignment="Center" TextWrapping="Wrap" Opacity="0.7"/>
+      </StackPanel>
     </Grid>
   </Grid>
 </Window>

@@ -17,6 +17,7 @@ public sealed partial class MainWindow
     // Reserve the request before queuing so held keys cannot queue several dialogs.
     private bool RequestQuickSwitch()
     {
+        if (_privacyCovered) return true;
         if (_quitting) return false;
         if (_quickSwitchOpen) return true;
         if (_dialogs.CurrentCount == 0) return false;
@@ -34,7 +35,7 @@ public sealed partial class MainWindow
         string? selectedId = null;
         try
         {
-            if (_dialogs.CurrentCount == 0 || _quitting) return;
+            if (_dialogs.CurrentCount == 0 || _quitting || _privacyCovered) return;
             var search = new TextBox { Name = "QuickSwitchSearch", PlaceholderText = "Account or provider name", MaxLength = 200 };
             AutomationProperties.SetName(search, "Search service accounts");
             var results = new ListView
@@ -131,7 +132,7 @@ public sealed partial class MainWindow
             ShowNotice("Quick switch unavailable", "Use the service sidebar and try Ctrl+K again.", InfoBarSeverity.Warning);
         }
         finally { _quickSwitchOpen = false; _quickSwitchDiagnosticKey = null; }
-        if (_quitting) return;
+        if (_quitting || _privacyCovered) return;
         if (selectedId != null) SelectAccount(selectedId);
         else if (previousFocus?.Focus(FocusState.Programmatic) != true)
         {

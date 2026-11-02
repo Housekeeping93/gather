@@ -83,13 +83,22 @@ internal sealed class NativeWindow : IDisposable
     }
     public void Show()
     {
-        ShowWindow(_hwnd, 9);
+        // SW_RESTORE unmaximizes a visible window. Only restore minimized windows;
+        // SW_SHOW preserves the user's current size, position and maximized state.
+        ShowWindow(_hwnd, IsIconic(_hwnd) ? 9 : 5);
         SetForegroundWindow(_hwnd);
         _badge.Refresh();
     }
     public void SetBadge(string label, string description) => _badge.Set(label, description);
     public int? BadgeResult => _badge.LastResult;
     public void Hide() => ShowWindow(_hwnd, 0);
+    public void ClearAlert()
+    {
+        if (!TrayAvailable) return;
+        var data = Data();
+        data.uFlags = 0x10; // Empty NIF_INFO removes the current tray balloon.
+        Shell_NotifyIcon(1, ref data);
+    }
     public bool ShowAlert(string title, string body)
     {
         if (!TrayAvailable)
@@ -141,6 +150,7 @@ internal sealed class NativeWindow : IDisposable
     [DllImport("user32.dll")] private static extern nint LoadIcon(nint instance, nint name);
     [DllImport("user32.dll")] private static extern nint SendMessage(nint hwnd, uint message, nint w, nint l);
     [DllImport("user32.dll")] private static extern bool ShowWindow(nint hwnd, int command);
+    [DllImport("user32.dll")] private static extern bool IsIconic(nint hwnd);
     [DllImport("user32.dll")] private static extern bool SetForegroundWindow(nint hwnd);
     [DllImport("user32.dll")] private static extern nint CreatePopupMenu();
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool AppendMenu(nint menu, uint flags, nuint id, string text);
