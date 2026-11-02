@@ -30,7 +30,7 @@ Compression=lzma2/fast
 SolidCompression=yes
 OutputDir={#ReleaseOutput}
 #ifndef QA
-OutputBaseFilename=Gather-Setup-0.10.0-dev.7
+OutputBaseFilename=Gather-Setup-0.10.0-dev.8
 #endif
 SetupIconFile={#PackageRoot}\Assets\Gather.ico
 UninstallDisplayIcon={app}\Gather.exe

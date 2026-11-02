@@ -1,5 +1,7 @@
 # Gather 0.10.0-dev.8 - quick switch
 
+Feature deliveries always include a tested Windows installer, its exact location, and the source pull request. Keep previous installer versions. Current local installers are in `../../outputs/installers`, published apps in `../../outputs/releases`, and verification evidence in `../../work/qa` and `../../work/logs`.
+
 Press **Ctrl+K** or choose the search icon on the toolbar to switch service accounts. Search by account name, provider name, or a combination of words. Empty search lists recently used accounts first, followed by the remaining accounts in sidebar order. Up/Down selects a result, Enter switches, and Escape closes the panel and restores focus. Selecting an account already visible in the other pane focuses that pane without duplicating or reloading its session.
 
 The switcher searches only account/provider names. It does not read messages. Recent account IDs are stored locally in the existing settings file; account profile IDs and permanent mute preferences are preserved. Results include accessible account/provider labels and a polite live announcement of the selection. Existing Ctrl+Tab navigation remains available outside dialogs.
@@ -12,7 +14,7 @@ The automated test runner supports `--skip-registry-checks` for restricted envir
 
 G02 adds timed focus (25, 50 or custom minutes), recurring quiet hours with starting days, and per-account exceptions. Open **Focus & DND** on the toolbar or **Settings → Quiet hours & exceptions**. Quiet hours default to off. Temporary restrictions preserve account mute preferences, survive restart and combine safely when focus and scheduled DND overlap. Web popups and native Signal notification delivery use the same policy.
 
-Verification: all 75 automated checks passed. Isolated dialog checks cover Save/Cancel, invalid times/days, exceptions, reload and focus options. Offline real WebView2 main/popup checks cover effective mute, badge restoration, notification policy and the suspend/resume handler. Existing layout and packaged startup/runtime checks pass. Physical Windows sleep/wake and authenticated provider playback were not exercised. Use --smoke-test --smoke-quiet-ui or --smoke-test --smoke-quiet-web with a fresh --data-dir for the dedicated checks. See ../../outputs/Gather-G02-0.10.0-dev.7.md.
+Verification: all 75 automated checks passed. Isolated dialog checks cover Save/Cancel, invalid times/days, exceptions, reload and focus options. Offline real WebView2 main/popup checks cover effective mute, badge restoration, notification policy and the suspend/resume handler. Existing layout and packaged startup/runtime checks pass. Physical Windows sleep/wake and authenticated provider playback were not exercised. Use --smoke-test --smoke-quiet-ui or --smoke-test --smoke-quiet-web with a fresh --data-dir for the dedicated checks. See ../../outputs/docs/Gather-G02-0.10.0-dev.7.md.
 
 ## Previous update: 0.10.0-dev.6 — compact desktop layout
 

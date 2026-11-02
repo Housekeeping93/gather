@@ -2,6 +2,10 @@
 
 Gather 0.10.0-dev.8, 2 November 2026.
 
+## Installer delivery
+
+The installer is available locally at `outputs/installers/Gather-Setup-0.10.0-dev.8.exe` under the Gather workspace. The published application is in `outputs/releases/Gather-Signal-Development-0.10.0-dev.8`. Both published and QA-installed copies pass complete Signal runtime/logo inventory verification, isolated empty-profile startup, normal startup and interface capture. The QA installer exits successfully into an isolated workspace directory using the same file payload and a test-only installer identity. The normal installer preserves the production installer identity and existing account data. Installer checksums and logs are retained in `outputs/docs` and `work/logs`.
+
 ## Scope
 
 Ctrl+K and the toolbar search button open a modal account switcher. Search matches all typed words against account/provider names, ignoring case. Recently used account IDs persist in the existing settings file, with removed IDs pruned and history limited to 20 accounts. Remaining accounts retain sidebar order. No message or browser-content indexing is involved.
