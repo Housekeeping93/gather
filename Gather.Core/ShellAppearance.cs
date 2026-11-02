@@ -20,14 +20,18 @@ public static class ShellAppearance
     }
 }
 
-public enum ShellShortcut { None, Previous, Next, QuickSwitch, FocusView }
+public enum ShellShortcut { None, Previous, Next, QuickSwitch, FocusView, SplitView, PrivacyCurtain }
 public static class ShellShortcuts
 {
-    public static ShellShortcut Resolve(int key, bool control, bool shift, bool alt) => !control || alt ? ShellShortcut.None : key switch
+    public static ShellShortcut Resolve(int key, bool control, bool shift, bool alt, string privacyShortcut = "Ctrl+Shift+P") =>
+        PrivacyCurtain.Matches(privacyShortcut, key, control, shift, alt) ? ShellShortcut.PrivacyCurtain :
+        key == 0x46 && alt && !control && !shift ? ShellShortcut.SplitView :
+        !control || alt ? ShellShortcut.None : key switch
     {
         9 => shift ? ShellShortcut.Previous : ShellShortcut.Next,
         0x4B when !shift => ShellShortcut.QuickSwitch,
         0x46 when shift => ShellShortcut.FocusView,
+        0x53 when shift => ShellShortcut.SplitView,
         _ => ShellShortcut.None
     };
 }

@@ -295,17 +295,20 @@ public sealed partial class MainWindow
     internal Task<ContentDialogResult> ShowSignalDialog(ContentDialog dialog) => ShowDialog(dialog);
     private async Task<ContentDialogResult> ShowDialog(ContentDialog dialog)
     {
+        if (_privacyCovered) return ContentDialogResult.None;
         await _dialogs.WaitAsync();
         try
         {
+            if (_privacyCovered) return ContentDialogResult.None;
             _activeDialog = dialog;
             return await dialog.ShowAsync();
         }
-        finally { _activeDialog = null; _dialogs.Release(); }
+        finally { _activeDialog = null; _dialogs.Release(); if (_privacyCovered) RestorePrivacyFocus(); }
     }
     internal async Task<bool> RequestPermissionAsync(Account a, string permission) => await ShowDialog(Dialog(a.Name + " requests permission", Text("Allow " + permission.ToLowerInvariant() + " for this account’s website?"), "Allow", "Block")) == ContentDialogResult.Primary;
     public void ShowNotice(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational)
     {
+        if (_privacyCovered) return;
         Notice.Title = title;
         Notice.Message = message;
         Notice.Severity = severity;
@@ -339,6 +342,7 @@ public sealed partial class MainWindow
     }
     public void OpenExternal(string url)
     {
+        if (_privacyCovered) return;
         if (!Uri.TryCreate(url, UriKind.Absolute, out var u) || u.Scheme != "https" || !string.IsNullOrEmpty(u.UserInfo))
             return;
         try
@@ -368,6 +372,7 @@ public sealed partial class MainWindow
         }
         var theme = new ComboBox { Header = "Appearance", ItemsSource = new[] { "Light", "Dark", "System" }, SelectedItem = _state.Theme, HorizontalAlignment = HorizontalAlignment.Stretch };
         var density = new ComboBox { Name = "ShellDensity", Header = "Shell spacing", ItemsSource = new[] { "Compact", "Comfortable" }, SelectedItem = _state.ShellDensity, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var privacyShortcut = new ComboBox { Name = "PrivacyShortcut", Header = "Privacy curtain shortcut", ItemsSource = PrivacyCurtain.Shortcuts, SelectedItem = _state.PrivacyShortcut, HorizontalAlignment = HorizontalAlignment.Stretch };
         var focusView = new ToggleSwitch { Name = "FocusView", Header = "Focus view", IsOn = _state.FocusView };
         var tray = new ToggleSwitch { Header = "Keep running when the window closes", IsOn = _state.CloseToTray };
         var previews = new ToggleSwitch { Header = "Hide message previews in notifications", IsOn = _state.HidePreviews };
@@ -378,6 +383,8 @@ public sealed partial class MainWindow
         content.Children.Add(quietSettings);
         content.Children.Add(theme);
         content.Children.Add(density);
+        content.Children.Add(privacyShortcut);
+        content.Children.Add(Text("Covers conversations, account details and Gather popups; suppresses notifications until restored. Screen privacy only, not encryption or an authentication lock. Alt+F toggles split view.", 12));
         content.Children.Add(Text("Comfortable enlarges Gather's controls and spacing without changing service zoom.", 12));
         content.Children.Add(focusView);
         content.Children.Add(Text("Hide the sidebar and pane headers. Use Ctrl+Shift+F or Exit focus view to restore them. This changes the layout, not notification settings.", 12));
@@ -433,6 +440,8 @@ public sealed partial class MainWindow
             return;
         _state.Theme = (string)theme.SelectedItem;
         _state.ShellDensity = (string)density.SelectedItem;
+        _state.PrivacyShortcut = (string)privacyShortcut.SelectedItem;
+        UpdatePrivacyShortcut();
         _state.FocusView = focusView.IsOn;
         _state.TaskbarBadge = (string)badgeMode.SelectedItem;
         _state.CloseToTray = tray.IsOn;

@@ -213,6 +213,7 @@ Check("Window geometry and content size reject unsafe persisted values", () =>
 QuietChecks.Run(Check);
 QuickSwitchChecks.Run(Check);
 ShellAppearanceChecks.Run(Check);
+PrivacyChecks.Run(Check);
 SignalChecks.Run(Check, args);
 if (OperatingSystem.IsWindows()) StartupChecks.Run(Check, args.Contains("--skip-registry-checks"));
 Console.WriteLine($"{passed} checks passed.");

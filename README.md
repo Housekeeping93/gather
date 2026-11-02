@@ -1,12 +1,26 @@
-# Gather 0.10.0-dev.9 - shell spacing and focus view
+# Gather 0.10.0 - MVP
 
 ## Install and get started
 
-**[Download the Windows installer](https://github.com/Housekeeping93/gather/releases/download/v0.10.0-dev.9/Gather-Setup-0.10.0-dev.9.exe)** · **[Installation guide](docs/INSTALLATION.md)** · **[All releases](https://github.com/Housekeeping93/gather/releases)**
+**[Download the Windows installer](https://github.com/Housekeeping93/gather/releases/download/v0.10.0/Gather-Setup-0.10.0.exe)** · **[Installation guide](docs/INSTALLATION.md)** · **[All releases](https://github.com/Housekeeping93/gather/releases)**
 
-The current download is a Windows 11 x64 development prerelease. The guide covers setup, service linking, updates and troubleshooting. Downloading the source ZIP does not install Gather.
+Gather 0.10.0 is the full MVP release for Windows 11 x64. The guide covers setup, service linking, updates and troubleshooting. Downloading the source ZIP does not install Gather.
 
-## Latest changes
+## MVP release
+
+Gather combines separate service accounts, native Signal text conversations, split view (Alt+F), quick switch (Ctrl+K), layout presets, focus / quiet hours, and a configurable privacy curtain. [Full release notes](docs/releases/0.10.0.md).
+
+## Previous update: dev.11
+
+The privacy curtain now preserves your current window size, position and maximized state when hiding or showing conversations, including focus returning from a Gather popup. The updated local installer is `outputs/installers/Gather-Setup-0.10.0-dev.11.exe`. [Fix details](docs/releases/0.10.0-dev.11.md).
+
+## Previous update: 0.10.0-dev.10 - privacy curtain and Alt+F
+
+**Ctrl+Shift+P** or the toolbar privacy button covers conversations and account details, hides Gather popups and suppresses notifications. Restore with the same shortcut or **Show conversations**. Settings offers three shortcut choices. The curtain preserves sessions and layout, and remains covered across restart. This is screen privacy, not encryption or an authentication lock.
+
+**Alt+F** switches between split and single view; the focused conversation stays visible when collapsing. Ctrl+Shift+S remains supported. [G18 verification and desktop checks](docs/G18-verification.md) describe the tested behaviour and remaining browser/keyboard checks. A tested dev.10 installer is available in the local workspace at `outputs/installers/Gather-Setup-0.10.0-dev.10.exe`.
+
+## Previous update: 0.10.0-dev.9 - shell spacing and focus view
 
 Choose **Settings → Shell spacing → Compact or Comfortable**. Compact retains the existing shell dimensions; Comfortable enlarges buttons, account tiles, pane headers and spacing without changing provider zoom. **Ctrl+Shift+F** or the toolbar focus-view button hides the sidebar and pane headers. The visible **Exit focus view** button restores them. Both preferences survive restart. This layout focus view leaves timed focus and scheduled Do Not Disturb unchanged.
 

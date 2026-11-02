@@ -4,9 +4,9 @@ Gather brings several messaging services into one Windows app. You do not need G
 
 ## Get the installer
 
-Download the **[Windows installer for 0.10.0-dev.9](https://github.com/Housekeeping93/gather/releases/download/v0.10.0-dev.9/Gather-Setup-0.10.0-dev.9.exe)** from the [development release](https://github.com/Housekeeping93/gather/releases/tag/v0.10.0-dev.9).
+Download the **[Windows installer for 0.10.0](https://github.com/Housekeeping93/gather/releases/download/v0.10.0/Gather-Setup-0.10.0.exe)** from the [MVP release](https://github.com/Housekeeping93/gather/releases/tag/v0.10.0).
 
-For newer versions, open [Gather Releases](https://github.com/Housekeeping93/gather/releases) and look under a release's **Assets** for `Gather-Setup-<version>.exe`. Choose the newest development prerelease if you want the latest preview features. The GitHub **Code > Download ZIP** option and **Source code** release assets contain source code, not an installable app.
+For newer versions, open [Gather Releases](https://github.com/Housekeeping93/gather/releases) and look under a release's **Assets** for `Gather-Setup-<version>.exe`. Use the latest full release for the MVP; development prereleases may contain newer preview features. The GitHub **Code > Download ZIP** option and **Source code** release assets contain source code, not an installable app.
 
 ## What you need
 
@@ -23,7 +23,7 @@ The installer includes Gather's .NET dependencies and the Signal/Java runtime. Y
 3. Double-click `Gather-Setup-<version>.exe` and follow setup. Installation is for your Windows user and normally does not require administrator rights. A desktop shortcut is optional.
 4. Open **Gather** from the Windows Start menu. The default installation folder is `%LOCALAPPDATA%\Programs\Gather`.
 
-Current development installers are unsigned, so Windows may show an unrecognized-app warning. Confirm the download source and checksum before proceeding; do not disable Windows security protections to install Gather.
+The current installer is unsigned, so Windows may show an unrecognized-app warning. Confirm the download source and checksum before proceeding; do not disable Windows security protections to install Gather.
 
 ### Optional: verify the download
 

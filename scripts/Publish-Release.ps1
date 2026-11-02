@@ -1,7 +1,8 @@
 #Requires -Version 7.0
 param(
-    [string]$Version = '0.10.0-dev.9',
-    [Parameter(Mandatory=$true)][string]$SourceCommit
+    [string]$Version = '0.10.0',
+    [Parameter(Mandatory=$true)][string]$SourceCommit,
+    [switch]$Prerelease
 )
 $ErrorActionPreference = 'Stop'
 $sourceRoot = Split-Path $PSScriptRoot -Parent
@@ -27,7 +28,9 @@ $tag = 'v'+$Version
 $existing = & $gh release view $tag --repo $repository --json isDraft,url,assets 2>$null
 $exists = $LASTEXITCODE -eq 0
 if (!$exists) {
-    & $gh release create $tag --repo $repository --target $SourceCommit --title ('Gather '+$Version+' (Windows preview)') --notes-file $notes --draft --prerelease
+    $releaseTitle = if ($Prerelease) { 'Gather '+$Version+' (Windows preview)' } else { 'Gather '+$Version+' - MVP' }
+    $releaseFlags = if ($Prerelease) { @('--prerelease') } else { @() }
+    & $gh release create $tag --repo $repository --target $SourceCommit --title $releaseTitle --notes-file $notes --draft @releaseFlags
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the draft release.' }
 }
 $releaseApi = & $gh release view $tag --repo $repository --json apiUrl --jq .apiUrl
@@ -51,10 +54,15 @@ foreach ($file in @($installer,$checksums)) {
     if ($asset.digest -and $asset.digest -ne ('sha256:'+$fileHash)) { throw 'GitHub asset digest does not match the local file.' }
 }
 if ($release.draft) {
-    & $gh release edit $tag --repo $repository --draft=false --prerelease
+    if ($Prerelease) {
+        & $gh release edit $tag --repo $repository --draft=false --prerelease=true
+    } else {
+        & $gh release edit $tag --repo $repository --draft=false --prerelease=false --latest=true
+    }
     if ($LASTEXITCODE -ne 0) { throw 'Could not publish the verified draft release.' }
 }
 $release = & $gh api $releaseApi | ConvertFrom-Json
 if ($release.draft) { throw 'Release is still a draft.' }
-[pscustomobject]@{releaseUrl=$release.html_url;tag=$tag;sourceCommit=$SourceCommit;installerSha256=$hash;assets=@($release.assets | Select-Object name,size,digest,browser_download_url)} |
+if ([bool]$release.prerelease -ne [bool]$Prerelease) { throw 'Published release type does not match the requested type.' }
+[pscustomobject]@{releaseUrl=$release.html_url;tag=$tag;prerelease=$release.prerelease;sourceCommit=$SourceCommit;installerSha256=$hash;assets=@($release.assets | Select-Object name,size,digest,browser_download_url)} |
     ConvertTo-Json -Depth 5 | Tee-Object -FilePath (Join-Path $workspaceRoot ('outputs/docs/Gather-GitHub-release-'+$Version+'.json'))
