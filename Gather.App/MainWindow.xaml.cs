@@ -85,7 +85,7 @@ public sealed partial class MainWindow : Window
             if (_dialogs.CurrentCount == 0 || _quitting)
                 return false;
             return DispatcherQueue.TryEnqueue(() => NavigateServices(direction));
-        });
+        }, RequestQuickSwitch);
         Closed += (_, _) => _navigationKeys.Dispose();
         Root.ActualThemeChanged += (_, _) => RefreshTheme();
         Activated += (_, e) => { _windowActive = e.WindowActivationState != WindowActivationState.Deactivated; if (_windowActive) { RefreshQuiet(); AcknowledgeFocused(); } };
@@ -98,6 +98,7 @@ public sealed partial class MainWindow : Window
         AppWindow.Closing += (_, e) => { if (!_quitting && _state.CloseToTray && _native.TrayAvailable) { e.Cancel = true; Save(); _native.Hide(); } };
         Closed += (_, _) => { _quitting = true; Save(); foreach (var v in _views.Values.ToArray()) v.Close(); _native.Dispose(); };
         AddShortcut(VirtualKey.S, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, ToggleSplit);
+        AddShortcut(VirtualKey.K, VirtualKeyModifiers.Control, () => RequestQuickSwitch());
         AddShortcut(VirtualKey.Tab, VirtualKeyModifiers.Control, () => NavigateServices(1));
         AddShortcut(VirtualKey.Tab, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, () => NavigateServices(-1));
         for (int i = 0; i < 9; i++)
@@ -112,6 +113,11 @@ public sealed partial class MainWindow : Window
         Root.Loaded += async (_, _) =>
         {
             StartupLog.Write("root-loaded");
+            if (_smoke && args.Contains("--smoke-quick-switch"))
+            {
+                await RunQuickSwitchSmokeTest();
+                return;
+            }
             if (_smoke && args.Contains("--smoke-quiet-web"))
             {
                 await RunQuietWebSmokeTest();
@@ -212,6 +218,7 @@ public sealed partial class MainWindow : Window
             ApplyColumns();
             PositionViews();
             UpdateFocus();
+            if (FocusedId != null) QuickSwitch.Remember(_state, FocusedId);
             UpdateStatus();
             Save();
         }
@@ -245,11 +252,13 @@ public sealed partial class MainWindow : Window
     }
     public void FocusAccount(string id)
     {
+        if (_quickSwitchOpen) return;
         if (_state.Layout.Split && id == _state.Layout.Right)
             _state.Layout.FocusRight = true;
         else if (id == _state.Layout.Left)
             _state.Layout.FocusRight = false;
         UpdateFocus();
+        if (!_home && QuickSwitch.Remember(_state, id)) Save();
         AcknowledgeFocused();
     }
     private void UpdateFocus()
@@ -429,7 +438,7 @@ public sealed partial class MainWindow : Window
     private void AddShortcut(VirtualKey key, VirtualKeyModifiers modifiers, Action action)
     {
         var shortcut = new KeyboardAccelerator { Key = key, Modifiers = modifiers };
-        shortcut.Invoked += (_, e) => { action(); e.Handled = true; };
+        shortcut.Invoked += (_, e) => { if (_dialogs.CurrentCount > 0 && !_quitting) action(); e.Handled = true; };
         Root.KeyboardAccelerators.Add(shortcut);
     }
     internal void ShowWindow()

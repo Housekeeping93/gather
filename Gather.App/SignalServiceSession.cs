@@ -16,6 +16,14 @@ internal sealed class SignalServiceSession : IServiceSession
     public UserControl View { get; } = new();
     FrameworkElement IServiceSession.View => View;
     public void FocusContent() { if (_composer.IsEnabled && _chat.Visibility == Visibility.Visible) _composer.Focus(FocusState.Programmatic); else _linkButton.Focus(FocusState.Programmatic); }
+    private bool _quickSwitchDiagnosticInput;
+    internal void EnableQuickSwitchDiagnosticInput()
+    {
+        if (!_diagnostic || !System.Environment.GetCommandLineArgs().Contains("--smoke-quick-switch"))
+            throw new InvalidOperationException("Offline quick-switch fixture only.");
+        _quickSwitchDiagnosticInput = true;
+        _composer.IsEnabled = true;
+    }
     public string Status { get; private set; } = "Starting Signal…";
     public bool Ready => _connected && _client?.Number != null;
     public UnreadState Unread { get; } = new();
@@ -336,7 +344,7 @@ internal sealed class SignalServiceSession : IServiceSession
                 _messages.Children.Add(bubble);
             }
         _composer.Text = selected?.Draft ?? "";
-        _composer.IsEnabled = !_diagnostic && selected is { Blocked: false, ExpirationSeconds: 0 } && !_savingFailed;
+        _composer.IsEnabled = (!_diagnostic || _quickSwitchDiagnosticInput) && selected is { Blocked: false, ExpirationSeconds: 0 } && !_savingFailed;
         _send.IsEnabled = _composer.IsEnabled && Ready && !_sending;
         if (selected?.ExpirationSeconds > 0) _chatHint.Text = "Disappearing messages are not supported in this text preview. Sending is disabled for this conversation.";
         else if (!_diagnostic) _chatHint.Text = "Enter to send · Shift+Enter for a new line · Text preview";

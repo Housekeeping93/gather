@@ -2,25 +2,27 @@ using System.Runtime.InteropServices;
 namespace Gather.App;
 
 // WebView2 sends keyboard input to its own child HWND. A thread-local message
-// hook handles only Gather's Ctrl+Tab shortcuts before either XAML or Chromium.
+// hook handles Gather's Ctrl+Tab and Ctrl+K before either XAML or Chromium.
 // It neither observes other applications nor reads text input.
 internal sealed class ServiceNavigationKeys : IDisposable
 {
     private readonly HookProc _handler;
     private readonly nint _hook;
-    public ServiceNavigationKeys(nint window, Func<int, bool> navigate)
+    public ServiceNavigationKeys(nint window, Func<int, bool> navigate, Func<bool> quickSwitch)
     {
         _handler = (code, removed, message) =>
         {
             if (code >= 0 && removed == 1
                 && (uint)Marshal.ReadInt32(message, IntPtr.Size) == 0x100
-                && Marshal.ReadIntPtr(message, IntPtr.Size == 8 ? 16 : 8) == 9
                 && (GetKeyState(0x11) & 0x8000) != 0
                 && (GetKeyState(0x12) & 0x8000) == 0
                 && GetAncestor(Marshal.ReadIntPtr(message), 2) == window)
             {
-                int direction = (GetKeyState(0x10) & 0x8000) != 0 ? -1 : 1;
-                if (navigate(direction))
+                var key = Marshal.ReadIntPtr(message, IntPtr.Size == 8 ? 16 : 8);
+                bool shift = (GetKeyState(0x10) & 0x8000) != 0;
+                bool handled = key == 9 ? navigate(shift ? -1 : 1)
+                    : key == 0x4B && !shift && quickSwitch();
+                if (handled)
                     Marshal.WriteInt32(message, IntPtr.Size, 0); // WM_NULL prevents double navigation.
             }
             return CallNextHookEx(0, code, removed, message);

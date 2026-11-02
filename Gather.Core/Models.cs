@@ -56,6 +56,7 @@ public sealed class Settings
 {
     public int Version { get; set; } = 1;
     public List<Account> Accounts { get; set; } = [];
+    public List<string> RecentAccountIds { get; set; } = [];
     public Layout Layout { get; set; } = new();
     public QuietSettings Quiet { get; set; } = new();
     public string Theme { get; set; } = "Light";
@@ -169,6 +170,7 @@ public static class LayoutActions
                 a.Name = Providers.Find(a.ProviderId)!.Name;
         }
         state.Quiet ??= new();
+        QuickSwitch.Normalize(state);
         QuietPolicy.Normalize(state.Quiet, state.Accounts);
         state.Layout ??= new();
         var l = state.Layout;

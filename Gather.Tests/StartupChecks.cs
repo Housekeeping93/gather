@@ -6,9 +6,14 @@ using Microsoft.Win32;
 internal static class StartupChecks
 {
     [SupportedOSPlatform("windows")]
-    public static void Run(Action<string, Action> check)
+    public static void Run(Action<string, Action> check, bool skipRegistry = false)
     {
-        check("Startup registration enables, reloads, updates its command and disables without touching other values", () => WithRegistry((registration, path) =>
+        void RegistryCheck(string name, Action test)
+        {
+            if (skipRegistry) Console.WriteLine("SKIP " + name + " (--skip-registry-checks)");
+            else check(name, test);
+        }
+        RegistryCheck("Startup registration enables, reloads, updates its command and disables without touching other values", () => WithRegistry((registration, path) =>
         {
             Expect(registration.ReadCommand() == null);
             using (var key = Registry.CurrentUser.CreateSubKey(path)) key.SetValue("AnotherApp", "unchanged");
@@ -32,7 +37,7 @@ internal static class StartupChecks
                 Expect(args.SequenceEqual(new[] { executable, "--data-dir", data }));
             }
         });
-        check("Invalid startup paths and missing application keep the existing registration", () => WithRegistry((registration, _) =>
+        RegistryCheck("Invalid startup paths and missing application keep the existing registration", () => WithRegistry((registration, _) =>
         {
             registration.SetEnabled(true, Environment.ProcessPath!);
             string? original = registration.ReadCommand();

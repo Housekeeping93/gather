@@ -27,6 +27,7 @@
             <TextBlock x:Name="StatusText" Grid.Column="1" Text="Ready when you are" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
           </Grid>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <Button x:Name="QuickSwitchButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE721;" FontFamily="Segoe Fluent Icons" Click="QuickSwitch_Click" ToolTipService.ToolTip="Switch service (Ctrl+K)" AutomationProperties.Name="Switch service (Ctrl+K)"/>
             <Button x:Name="PreviousButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72B;" FontFamily="Segoe Fluent Icons" Click="Previous_Click" ToolTipService.ToolTip="Previous service (Ctrl+Shift+Tab)" AutomationProperties.Name="Previous service"/>
             <Button x:Name="NextButton" Style="{StaticResource ShellButtonStyle}" Content="&#xE72A;" FontFamily="Segoe Fluent Icons" Click="Next_Click" ToolTipService.ToolTip="Next service (Ctrl+Tab)" AutomationProperties.Name="Next service"/>
             <Border Width="1" Height="16" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="6,0"/>

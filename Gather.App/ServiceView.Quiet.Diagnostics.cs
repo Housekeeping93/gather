@@ -6,11 +6,13 @@ internal sealed partial class ServiceView
     private bool _quietDiagnostic;
     internal async Task InitializeQuietDiagnosticAsync()
     {
-        if (!System.Environment.GetCommandLineArgs().Contains("--smoke-quiet-web")) throw new InvalidOperationException("Offline diagnostic only.");
+        var args = System.Environment.GetCommandLineArgs();
+        if (!args.Contains("--smoke-quiet-web") && !args.Contains("--smoke-quick-switch")) throw new InvalidOperationException("Offline diagnostic only.");
         _quietDiagnostic = true;
         var environment = await _host.EnvironmentAsync();
         var options = environment.CreateCoreWebView2ControllerOptions(); options.ProfileName = Account.ProfileName;
         await View.EnsureCoreWebView2Async(environment, options);
+        if (View.CoreWebView2 == null) throw new InvalidOperationException("WebView2 did not create an offline browser controller in this session.");
         Configure(View.CoreWebView2, false);
         _initialized = true;
         View.CoreWebView2.NavigateToString("<html><body>Offline quiet-hours check. No service connected.</body></html>");
