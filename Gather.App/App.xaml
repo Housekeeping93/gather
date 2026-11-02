@@ -1,0 +1,24 @@
+<Application x:Class="Gather.App.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries><XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/></ResourceDictionary.MergedDictionaries>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="GatherBackground" Color="#F5F7F6"/>
+          <SolidColorBrush x:Key="GatherAccentBackground" Color="#DFF5EC"/>
+          <SolidColorBrush x:Key="GatherAccentForeground" Color="#246653"/>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Default">
+          <SolidColorBrush x:Key="GatherBackground" Color="#171C20"/>
+          <SolidColorBrush x:Key="GatherAccentBackground" Color="#203C35"/>
+          <SolidColorBrush x:Key="GatherAccentForeground" Color="#A6E8CF"/>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="HighContrast">
+          <SolidColorBrush x:Key="GatherBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+          <SolidColorBrush x:Key="GatherAccentBackground" Color="{ThemeResource SystemColorHighlightColor}"/>
+          <SolidColorBrush x:Key="GatherAccentForeground" Color="{ThemeResource SystemColorHighlightTextColor}"/>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>
